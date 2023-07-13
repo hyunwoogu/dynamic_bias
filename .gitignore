@@ -4,9 +4,9 @@ notebooks/
 
 # Data and checkpoints
 data/
+debug/
 models/
-share/
-archive/
+figures/
 .idea/
 
 # Cache
