@@ -3,7 +3,7 @@ export PYTHONPATH := $(PYTHONPATH):$(abspath $(CURDIR))
 
 # initialization
 init:
-	pip install -r requirements.txt
+	pip install -r requirements.txt --no-cache-dir
 
 # preprocessing
 
