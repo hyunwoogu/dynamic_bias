@@ -16,7 +16,7 @@ analysis-behavior:
 
 analysis-fmri:
 	python src/analysis_fmri/decode.py
-	python src/analysis_fmri/analysis_bias_bold.py
+	python src/analysis_fmri/analyze_bias_bold.py
 	python src/analysis_fmri/visual_drive.py
 	python src/analysis_fmri/decision_consistent_bias.py
 	python src/analysis_fmri/correspondence_score.py
