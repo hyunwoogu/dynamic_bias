@@ -42,7 +42,7 @@ def simulate_vd(Ts_ex, data, conv, delay_condition=[1,2]):
         return z(b)
     """
     s_tgt, c_tgt   = np.sin(data['stim']), np.cos(data['stim'])
-    s_ref, c_ref   = np.sin(data['ref']),  np.cos(data['ref'])  # TODO: check
+    s_ref, c_ref   = np.sin(data['ref']),  np.cos(data['ref'])
     
     idx_u   = (Ts_ex>=0) & (Ts_ex<1.5)
     idx_v_e = (Ts_ex>=6) & (Ts_ex<6.+bold_params['tau_D'])
