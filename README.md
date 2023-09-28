@@ -10,7 +10,7 @@ This repository hosts the source code for our paper.
 ### Environment
 
 The source code has been tested under macOS 13.4.1 without dependence on GPU. To set up a virtual environment and install dependencies, run the following. Specific versions of the dependencies are listed in `requirements.txt`. Expected install time is less than ten minutes.
-```
+```console
 python -m venv env
 source env/bin/activate
 make init
@@ -19,7 +19,7 @@ make init
 ### Generating outputs
 
 To train the models and generate the analysis outputs, run the following.
-```
+```console
 make analysis-behavior
 make analysis-fmri
 make model-ddm
