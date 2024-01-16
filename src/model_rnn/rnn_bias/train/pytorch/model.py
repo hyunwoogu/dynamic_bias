@@ -17,8 +17,8 @@ class Model(nn.Module):
         return y, loss
 
     def rnn_model(self, input_data1, input_data2, hp):
-        _h1 = torch.zeros((input_data1.shape[1], hp['w_rnn11'].shape[0]))
-        _h2 = torch.zeros((input_data1.shape[1], hp['w_rnn22'].shape[0]))
+        _h1 = torch.zeros((input_data1.shape[1], hp['w_rnn11'].shape[0]), device=hp['w_rnn11'].device)
+        _h2 = torch.zeros((input_data1.shape[1], hp['w_rnn22'].shape[0]), device=hp['w_rnn22'].device)
         _n1 = _h1.clone().zero_()
         _n2 = _h2.clone().zero_()
         h1_stack, h2_stack, y_dm_stack, y_em_stack = [], [], [], []
