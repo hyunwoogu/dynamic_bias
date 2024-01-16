@@ -44,10 +44,10 @@ def tensorize_model_performance(model_performance):
     return tensor_mp
 
 def _get_eval(trial_info, output, par):
-    argoutput = torch.argmax(output['dm'], dim=2).numpy()
-    perf_dm   = np.mean(np.array([argoutput[t, :] == ((trial_info['reference_ori'].numpy() > 0)) for t in par['design_rg']['decision']]))
+    argoutput = torch.argmax(output['dm'], dim=2).cpu().numpy()
+    perf_dm   = np.mean(np.array([argoutput[t, :] == ((trial_info['reference_ori'].cpu().numpy() > 0)) for t in par['design_rg']['decision']]))
 
-    cenoutput = torch.nn.functional.softmax(output['em'], dim=2).detach().numpy()
+    cenoutput = torch.nn.functional.softmax(output['em'], dim=2).detach().cpu().numpy()
     post_prob = cenoutput
     post_prob = post_prob / (np.sum(post_prob, axis=2, keepdims=True) + np.finfo(np.float32).eps)  # Dirichlet normalization
     post_support = np.linspace(0, np.pi, par['n_ori'], endpoint=False) + np.pi / par['n_ori'] / 2
@@ -56,6 +56,6 @@ def _get_eval(trial_info, output, par):
     estim_sinr = (np.sin(2 * pseudo_mean[par['design_rg']['estim'], :])).mean(axis=0)
     estim_cosr = (np.cos(2 * pseudo_mean[par['design_rg']['estim'], :])).mean(axis=0)
     estim_mean = np.arctan2(estim_sinr, estim_cosr) / 2
-    perf_em = np.mean(np.cos(2. * (trial_info['stimulus_ori'].numpy() * np.pi / par['n_ori'] - estim_mean)))
+    perf_em = np.mean(np.cos(2. * (trial_info['stimulus_ori'].cpu().numpy() * np.pi / par['n_ori'] - estim_mean)))
 
     return perf_dm, perf_em
