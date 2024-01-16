@@ -1,5 +1,5 @@
 import tensorflow as tf
-from .hyper import *
+from ..hyper import *
 
 __all__ = ['Model']
 

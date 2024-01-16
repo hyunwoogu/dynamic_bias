@@ -1,12 +1,23 @@
 import numpy as np
 import tensorflow as tf
 from .model import Model
-from .hyper import hp_spec
+from ..hyper import hp
 
 __all__ = ['initialize_rnn', 'append_model_performance', 'print_results',
-           'tensorize_trial', 'tensorize_model_performance', 'gen_ti_spec']
+           'tensorize_hp', 'tensorize_trial', 'tensorize_model_performance', 'gen_ti_spec']
+
+def tensorize_hp(hp):
+    for k, v in hp.items():
+        hp[k] = tf.constant(v, name=k)
+    return hp
+
+hp = tensorize_hp(hp)
+hp_spec = {}
+for k, v in hp.items():
+	hp_spec[k] = tf.TensorSpec(v.numpy().shape, tf.dtypes.as_dtype(v.numpy().dtype), name=k)
 
 def initialize_rnn(ti_spec,hp_spec=hp_spec):
+    # In TensorFlow, explicit function compilation is needed
     model = Model()
     model.__call__.get_concrete_function(
         trial_info=ti_spec,
@@ -30,7 +41,7 @@ def append_model_performance(model_performance, trial_info, Y, Loss, par):
 
 def print_results(model_performance, iteration):
     print_res = 'Iter. {:4d}'.format(iteration)
-    print_res += ' | Decision Performance {:0.4f}'.format(model_performance['perf_dm'][iteration]) + \
+    print_res += ' | Discrimination Performance {:0.4f}'.format(model_performance['perf_dm'][iteration]) + \
                  ' | Estimation Performance {:0.4f}'.format(model_performance['perf_em'][iteration]) + \
                  ' | Loss {:0.4f}'.format(model_performance['loss'][iteration])
     print(print_res)
@@ -43,7 +54,7 @@ def tensorize_trial(trial_info):
 def tensorize_model_performance(model_performance):
     tensor_mp = {'perf_dm': tf.Variable(model_performance['perf_dm'], trainable=False),
                  'perf_em': tf.Variable(model_performance['perf_em'], trainable=False),
-                 'loss': tf.Variable(model_performance['loss'], trainable=False),
+                 'loss':    tf.Variable(model_performance['loss'],    trainable=False),
                  'loss_dm': tf.Variable(model_performance['loss_dm'], trainable=False),
                  'loss_em': tf.Variable(model_performance['loss_em'], trainable=False)}
     return tensor_mp

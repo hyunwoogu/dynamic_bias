@@ -1,5 +1,7 @@
 # Decision-consistent bias mediated by drift dynamics of human visual working memory
 
+**Disclaimer: This branch is under construction. Please visit the main branch for the compatibility with the paper.**
+
 This repository hosts the source code for our paper.
 
 [Preprint](https://www.biorxiv.org/content/10.1101/2023.06.28.546818v1)

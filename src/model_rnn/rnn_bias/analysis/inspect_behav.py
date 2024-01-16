@@ -1,16 +1,15 @@
 import numpy as np
-import tensorflow as tf
+from scipy.special import softmax
 
 __all__ = ['softmax_pred_output','behavior_summary_dm', 'behavior_summary_em']
 
 def softmax_pred_output(pred_output):
     # softmax the pred_output
-    cenoutput = tf.nn.softmax(pred_output, axis=2)
-    cenoutput = cenoutput.numpy()
+    cenoutput = softmax(pred_output, axis=2)
     return cenoutput
 
 # Edited (in order to minimize overhead)
-def behavior_summary_dm(pred_output, par):
+def behavior_summary_dm(pred_output):
     cenoutput  = softmax_pred_output(pred_output) # pred_output is assumed to be decision period
     
     # posterior probability as a function of time

@@ -1,16 +1,15 @@
 import numpy as np
-import tensorflow as tf
 from rnn_bias.base import par
 from rnn_bias.base.functions import initialize, w_design
 
-__all__ = ['hp', 'hp_spec', 'update_hp']
+__all__ = ['hp', 'update_hp']
 
 # Model hyperparameters(modifiable)
 hp  = {
-	'w_in_dm_fix'   : False,
-	'w_in_em_fix'   : False,
-	'w_out_dm_fix'  : False,
-	'w_out_em_fix'  : False,
+	'w_in_dm_fix'   : True,
+	'w_in_em_fix'   : True,
+	'w_out_dm_fix'  : True,
+	'w_out_em_fix'  : True,
 	'DtoE_off'      : False,
 	'EtoD_off'      : False,
 
@@ -54,11 +53,3 @@ def update_hp(hp):
 	return hp
 
 hp = update_hp(hp)
-
-# Tensorize hp
-for k, v in hp.items():
-    hp[k] = tf.constant(v, name=k)	
-
-hp_spec = {}
-for k, v in hp.items():
-	hp_spec[k] = tf.TensorSpec(v.numpy().shape, tf.dtypes.as_dtype(v.numpy().dtype), name=k)

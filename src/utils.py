@@ -79,8 +79,8 @@ LABEL = False # label axes
 HUSL  = mc.ListedColormap(sns.color_palette("husl",24))
 BLUES = mc.ListedColormap(sns.color_palette("GnBu",12))
 TWLT  = mc.ListedColormap(sns.color_palette("twilight",24))
-E_COLOR = np.array([41, 175, 127])/255.
-L_COLOR = np.array([51, 99, 141])/255.
+E_COLOR = np.array([51, 99, 141])/255.
+L_COLOR = np.array([41, 175, 127])/255.
 DIR_FIGURE = str(Path(ORIGIN+'/figures'))
 mkdir(DIR_FIGURE)
 

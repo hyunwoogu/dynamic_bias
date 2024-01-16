@@ -37,7 +37,7 @@ par = {
 	# Tuning function data
 	'strength_input'        : 1., # magnitutde scaling factor for von Mises
 	'strength_output'       : 1., # magnitutde scaling factor for von Mises
-	'kappa'                 : 2,  # concentration scaling factor for von Mises
+	'kappa'                 : 5., # concentration scaling factor for von Mises
 
 	# Loss parameters
 

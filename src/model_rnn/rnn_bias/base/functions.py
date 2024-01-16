@@ -1,4 +1,3 @@
-import pickle
 import numpy as np
 
 __all__ = ['initialize', 'w_design', 'convert_to_rg']
