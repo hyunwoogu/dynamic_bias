@@ -91,9 +91,11 @@ class Model(nn.Module):
 
         # Ornstein-Uhlenbeck noise model
         _n1 = _n1*torch.exp(-hp['alpha_noise']) + \
-              torch.sqrt(1.-torch.exp(-2.*hp['alpha_noise']))*torch.normal(0,hp['noise_rnn_sd'],_h1.shape)
+              torch.sqrt(1.-torch.exp(-2.*hp['alpha_noise']))*torch.normal(0,hp['noise_rnn_sd'],_h1.shape,
+              device=hp['noise_rnn_sd'].device)
         _n2 = _n2*torch.exp(-hp['alpha_noise']) + \
-              torch.sqrt(1.-torch.exp(-2.*hp['alpha_noise']))*torch.normal(0,hp['noise_rnn_sd'],_h2.shape)
+              torch.sqrt(1.-torch.exp(-2.*hp['alpha_noise']))*torch.normal(0,hp['noise_rnn_sd'],_h2.shape,
+              device=hp['noise_rnn_sd'].device)
 
         _h1 = _h1*(1. - hp['alpha_neuron']) + hp['alpha_neuron']*torch.sigmoid(
                 rnn_input1 @ _w_in1 + _h1 @ _w_rnn11 + _h2 @ _w_rnn21 + _n1)
