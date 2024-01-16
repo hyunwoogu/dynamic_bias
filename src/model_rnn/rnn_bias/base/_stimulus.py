@@ -1,6 +1,5 @@
 import numpy as np
 from ._parameters import par
-import randomgen.generator as random
 
 __all__ = ['Stimulus']
 
@@ -35,8 +34,8 @@ class Stimulus(object):
         return {'stimulus_ori': stimulus_ori, 'reference_ori': reference_ori}
 
     def _gen_stims(self, stimulus):
-        neural_input1  = random.standard_normal(size=(self.n_timesteps, self.batch_size, self.n_input))*self.noise_sd*np.sqrt(2*self.tau/self.dt)
-        neural_input2  = random.standard_normal(size=(self.n_timesteps, self.batch_size, self.n_input))*self.noise_sd*np.sqrt(2*self.tau/self.dt)
+        neural_input1  = np.random.normal(size=(self.n_timesteps, self.batch_size, self.n_input))*self.noise_sd*np.sqrt(2*self.tau/self.dt)
+        neural_input2  = np.random.normal(size=(self.n_timesteps, self.batch_size, self.n_input))*self.noise_sd*np.sqrt(2*self.tau/self.dt)
 
         for t in range(self.batch_size):
             neural_input2[self.design_rg['stim'],t] += self._gen_stim_variable(stimulus['stimulus_ori'][t]).reshape((1,-1))
@@ -75,7 +74,7 @@ class Stimulus(object):
     def _gen_stim_variable(self, stimulus_ori):
         stim_dirs = np.float32(np.arange(0,180,180/self.n_ori))
         stim_dir  = stim_dirs[stimulus_ori]
-        stim_dir += random.standard_normal() * (self.noise_center[stimulus_ori])
+        stim_dir += np.random.normal() * (self.noise_center[stimulus_ori])
 
         d = np.cos((stim_dirs - stim_dir)/90*np.pi)
         v = self.strength_input*np.exp(self.kappa*d)/np.exp(self.kappa)
