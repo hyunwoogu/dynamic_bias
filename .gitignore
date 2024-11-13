@@ -1,9 +1,12 @@
-# Data and checkpoints
-data/
+# Data, legacy, and checkpoints
+/models/
+legacy/
 debug/
-models/
+data/
 figures/
 .idea/
+*.egg-info/
+*.egg-info*/
 
 # Cache
 __pycache__/

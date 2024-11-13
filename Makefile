@@ -1,35 +1,58 @@
-# add path
-export PYTHONPATH := $(PYTHONPATH):$(abspath $(CURDIR))
+install:
+	pip install -e .
 
-# initialization
-init:
-	pip install -r requirements.txt --no-cache-dir
-
-# preprocessing
-
-# 
+# analyses
 analysis-behavior:
-	python src/analysis_behavior/psychometric_curve.py
-	python src/analysis_behavior/stimulus_specific_bias_pse.py
-	python src/analysis_behavior/stimulus_specific_bias.py
-	python src/analysis_behavior/stimulus_specific_bias_weight.py
+# [1] estimate stimulus-specific biases from behavior data
+	python dynamic_bias/analyses/behavior/workflow/stimulus_specific_bias.py
+
+# [2] estimate decision-consistent biases from behavior data
+	python dynamic_bias/analyses/behavior/workflow/decision_consistent_bias.py
+
+analysis-ddm:
+# [1] fit drift-diffusion models (DDMs) to behavior data
+	python dynamic_bias/analyses/ddm/workflow/fit.py
+
+# [2] analyze data from DDM behaviors
+	python dynamic_bias/analyses/ddm/workflow/analyze_data.py
+
+# [3] estimate decision-consistent biases from DDM behaviors
+	python dynamic_bias/analyses/ddm/workflow/decision_consistent_bias.py
 
 analysis-fmri:
-	python src/analysis_fmri/decode.py
-	python src/analysis_fmri/analyze_bias_bold.py
-	python src/analysis_fmri/visual_drive.py
-	python src/analysis_fmri/decision_consistent_bias.py
-	python src/analysis_fmri/correspondence_score.py
+# [1] decode BOLD data
+	python dynamic_bias/analyses/fmri/workflow/decode.py
 
-model-ddm:
-	python src/model_ddm/fit_models.py
-	python src/model_ddm/near_reference_variability.py
-	python src/model_ddm/post_decision_bias.py
-	python src/model_ddm/decision_consistent_bias.py
-	python src/model_ddm/analyze_bias_ddm.py
+# [2] analyze data from decoded BOLD data
+	python dynamic_bias/analyses/fmri/workflow/analyze_data.py
 
-model-rnn:
-	python src/model_rnn/train_models.py
-	python src/model_rnn/run_models.py
-	python src/model_rnn/sum_models.py
-	python src/model_rnn/analysis_models.py
+# [3] estimate hemodynamic model parameters from decoded BOLD data
+	python dynamic_bias/analyses/fmri/workflow/hemodynamic_model.py
+
+# [4] estimate decision-consistent biases from decoded BOLD data
+	python dynamic_bias/analyses/fmri/workflow/decision_consistent_bias.py
+
+# [5] compute correspondences with drift-diffusion models
+	python dynamic_bias/analyses/fmri/workflow/drift_diffusion_model.py
+
+analysis-rnn:
+# [1] train RNNs
+	@MODEL_TYPES="heterogeneous homogeneous heterogeneous_emonly heterogeneous_d2e_ablation"; \
+	for model in $$MODEL_TYPES; do \
+		python dynamic_bias/analyses/rnn/workflow/train.py --model_type $$model; \
+	done
+
+# [2] run RNNs
+	@MODEL_TYPES="heterogeneous heterogeneous_emonly heterogeneous_d2e_ablation"; \
+	for model in $$MODEL_TYPES; do \
+		python dynamic_bias/analyses/rnn/workflow/run.py --model_type $$model; \
+	done
+	
+# [3] analyze data from RNN predictions
+	python dynamic_bias/analyses/rnn/workflow/analyze_data.py
+
+# [4] estimate decision-consistent biases from RNN data
+	python dynamic_bias/analyses/rnn/workflow/decision_consistent_bias.py
+
+# [5] analyze RNN states
+	python dynamic_bias/analyses/rnn/workflow/analyze_states.py
