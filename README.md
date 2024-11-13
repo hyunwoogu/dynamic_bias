@@ -15,7 +15,7 @@ pip install -e .
 
 ### Generating outputs
 
-To generate the analysis outputs, run the following. This includes the model fits.
+To generate the analysis outputs, run the following Makefile commands. This includes the model fitting.
 ```bash
 make analysis-behavior
 make analysis-ddm
