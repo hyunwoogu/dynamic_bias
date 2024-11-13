@@ -4,12 +4,10 @@ This repository hosts the source code for the [Preprint](https://www.biorxiv.org
 
 ## Setup instructions
 
-### Environment and installation
+### Installation
 
-The source code has been tested under macOS 15.0.1 without dependence on GPU. To set up a virtual environment and install the package, run the following.
-```console
-python -m venv env
-source env/bin/activate
+The source code has been tested under macOS 15.0.1 without dependence on GPU. To install the project package, run the following.
+```bash
 git clone https://github.com/hyunwoogu/dynamic_bias
 cd dynamic_bias
 pip install -e .
@@ -18,7 +16,7 @@ pip install -e .
 ### Generating outputs
 
 To generate the analysis outputs, run the following. This includes the model fits.
-```console
+```bash
 make analysis-behavior
 make analysis-ddm
 make analysis-fmri
@@ -34,7 +32,7 @@ To skip the previous part and directly obtain the outputs and the RNN model weig
 
 ### Notebooks
 
-To replicate the figures in the paper, visit `notebooks/` and run the corresponding jupyter notebooks. Note that as these notebooks contain the code for downloading the required output files, the previous steps of generating outputs or training models may be skipped. Expected run time of each notebook is less than a minute.
+To replicate the figures in the paper, run the jupyter notebooks under `notebooks/`. Note that as these notebooks contain the code for downloading the required output files, the previous steps of generating outputs or training models may be skipped. Expected run time of each notebook is less than a minute.
 
 ## Citation
 
