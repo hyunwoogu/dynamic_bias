@@ -1,20 +1,28 @@
 """decode BOLD data"""
 import pickle
+import argparse
 import numpy as np
 import pandas as pd
 from dynamic_bias import utils
 from dynamic_bias.analyses.fmri import LinearDecodingModel
 
+# argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--prefix', type=str, default='evc')
+parser.add_argument('--input_dir', type=str, default=f'{utils.ORIGIN}/data/processed/fmri/bold')
+parser.add_argument('--output_dir', type=str, default=f'{utils.ORIGIN}/data/processed/fmri/decoding')
+args = parser.parse_args()
+
 utils.download_dataset("data/processed/behavior")
 utils.download_dataset("data/processed/fmri")
 behavior = pd.read_csv(f"{utils.ORIGIN}/data/processed/behavior/behavior.csv")
+prefix = args.prefix
+input_dir = args.input_dir
+output_dir = args.output_dir
 
-for i_sub, v_sub in enumerate(np.unique(behavior.ID)):    
-    utils.mkdir(f"{utils.ORIGIN}/data/processed/fmri/decoding")
-
-    # Load the visual cortex voxels: shape: [n_voxels, n_trials, n_timepoint (TR 3-14)]
-    with open(f"{utils.ORIGIN}/data/processed/fmri/visual_voxels/visual_voxels_sub-{v_sub:04}.npy", 'rb') as f: 
-        X = np.load(f)
+for i_sub, v_sub in enumerate(np.unique(behavior.ID)):
+    # Load voxels
+    X = utils.load(f"{input_dir}/{prefix}_sub-{v_sub:04}.pkl")['bold']
     
     # 
     behav = behavior[behavior.ID==v_sub]
@@ -28,7 +36,7 @@ for i_sub, v_sub in enumerate(np.unique(behavior.ID)):
     T     = X.shape[-1]              # n_timestep
     
     # Decoding loop for each timepoint
-    print(f'Decoding stimuli from the visual voxels of sub-{v_sub:04}...')
+    print(f'Decoding stimuli from the voxels of sub-{v_sub:04}...')
     chan_recon = np.nan*np.zeros((T, sum(idx), 120)) # [n_timepoints, n_trials, n_psi]
     
     for t_train in range(T):
@@ -46,14 +54,8 @@ for i_sub, v_sub in enumerate(np.unique(behavior.ID)):
         chan_recon_t[idx&idx_l] = model_l.predict(X_train)[idx&idx_l]
         chan_recon[t_train] = chan_recon_t[idx]
         
-        print(f'TR={t_train+3} completed')
+        print(f'T={t_train} completed')
     
-    # with open(f"{utils.ORIGIN}/data/processed/fmri/decoding/decoding_sub-{v_sub:04}.pickle", 'wb') as f:
-    #     pickle.dump({'behav': behav[idx],
-    #                  'chan' : chan_recon}, f)
-    
-    # due to a known issue with pandas, we save the data without pandas dataframe
-    # corresponding behaviors can be recovered using utils.load_behavior()
-    # https://stackoverflow.com/questions/75953279/modulenotfounderror-no-module-named-pandas-core-indexes-numeric-using-metaflo
-    with open(f"{utils.ORIGIN}/data/processed/fmri/decoding/decoding_sub-{v_sub:04}.pickle", 'wb') as f:
-        pickle.dump(chan_recon, f)
+    # due to backward incompatibility of pandas, we serialize data without behavior dataframe (pandas)
+    # instead, corresponding behaviors can be recovered using utils.load_behavior()
+    utils.save(chan_recon, f"{output_dir}/{prefix}_sub-{v_sub:04}.pickle")

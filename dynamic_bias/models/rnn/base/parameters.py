@@ -34,8 +34,8 @@ par = {
 	'noise_center'       : np.zeros(24),
 
 	# Tuning function data
-	'gamma_input'        : 1., # magnitutde scaling factor for von Mises
-	'gamma_output'       : 1., # magnitutde scaling factor for von Mises
+	'gamma_input'        : 1., # magnitude scaling factor for von Mises
+	'gamma_output'       : 1., # magnitude scaling factor for von Mises
 	'kappa'              : 5., # concentration scaling factor for von Mises
 
 	# Neuronal settings

@@ -20,7 +20,7 @@ PATH['data']['outputs'] = {}
 PATH['data']['outputs']['behavior']   = "https://www.dropbox.com/scl/fi/x69ocf8mph7hwx38m6boe/behavior.zip"
 PATH['data']['outputs']['fmri']       = "https://www.dropbox.com/scl/fi/7o9mad0c29coed9ch0zxx/fmri.zip"
 PATH['data']['outputs']['ddm']        = "https://www.dropbox.com/scl/fi/i4i1ilguykfs927ua4j4i/ddm.zip"
-PATH['data']['outputs']['rnn']        = "https://www.dropbox.com/s/zfjrtwph6ir2l7b/rnn.zip"
+PATH['data']['outputs']['rnn']        = "https://www.dropbox.com/scl/fi/si7313vucjrgl3rqqgmfb/rnn.zip"
 PATH['models'] = {}
 PATH['models']['ddm'] = {}
 PATH['models']['ddm']['full']         = "https://www.dropbox.com/scl/fi/f2kw1rdgmv4ijy7exkmud/full.zip"
@@ -60,15 +60,17 @@ def load(path):
     with open(path, 'rb') as f:
         return pickle.load(f)
 
-def load_behavior(exclude_nans=True, verbose=True):
+def load_behavior(exclude_nans=True, verbose=True, sub_id=None):
     """load behavior data"""
     download_dataset("data/processed/behavior", verbose=verbose)
     behavior = pd.read_csv(f"{ORIGIN}/data/processed/behavior/behavior.csv")
     if exclude_nans:
         behavior = behavior[behavior['choice'].notna() & behavior['error'].notna()]
+    if sub_id is not None:
+        behavior = behavior[behavior['ID']==sub_id]
     return behavior
 
-def load_bold(return_behavior=False, verbose=True):
+def load_bold(return_behavior=False, verbose=True, prefix='evc'):
     """load bold decoding data in [t, n_channel, n_trials] format
     """
     behavior = load_behavior(verbose=False)
@@ -76,7 +78,7 @@ def load_bold(return_behavior=False, verbose=True):
 
     chans = []
     for v_sub in np.unique(behavior.ID):
-        chan = load(f"{ORIGIN}/data/processed/fmri/decoding/decoding_sub-{v_sub:04}.pickle")
+        chan = load(f"{ORIGIN}/data/processed/fmri/decoding/{prefix}_sub-{v_sub:04}.pickle")
         chans.append(chan)
     chans = np.concatenate(chans, axis=1).transpose((0,2,1))
 
@@ -120,3 +122,14 @@ def download_dataset(path, cmd='curl', verbose=True):
         if verbose: print(command)
         subprocess.run(command, capture_output=True, shell=True)
         if verbose: print(f"downloaded {path_strip}.")
+
+def index_dict(data, index, nested=False):
+    """index a dictionary of arrays using a shared index"""
+    indexed_data = {}
+    for key, value in data.items():
+        if nested and isinstance(value, dict):
+            # recursively handle nested dictionaries
+            indexed_data[key] = index_dict(value, index, nested=True)
+        else:
+            indexed_data[key] = value[index]
+    return indexed_data

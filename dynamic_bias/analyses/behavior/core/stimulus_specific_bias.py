@@ -37,7 +37,7 @@ class StimulusSpecificBias:
 
         return kappa_hat
 
-    def fit(self, y, x=None, penalty=utils.EPS):
+    def fit(self, y, x=None, penalty=utils.EPS, exclude_nan=False):
         """fit weights of the stimulus-specific bias function κ
 
         inputs
@@ -49,6 +49,11 @@ class StimulusSpecificBias:
         if x is None:
             x = utils.exp_stim_list().reshape((-1, 1))
         X = self.derivative_von_mises(x, self.c_basis, self.p_basis)
+
+        if exclude_nan:
+            nonnan = ~np.isnan(y)
+            X = X[nonnan]
+            y = np.array(y)[nonnan]
 
         if penalty is not None:
             reg = Ridge(alpha=penalty).fit(X, y)

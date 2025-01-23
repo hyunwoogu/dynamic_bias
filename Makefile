@@ -1,7 +1,14 @@
 install:
 	pip install -e .
 
-# analyses
+# preprocess
+preprocess:
+# [1] preprocess behavior data : combine behavior info from openneuro dataset
+	python dynamic_bias/analyses/behavior/workflow/preprocess.py
+
+# [2] preprocess fmri data : load fmriprep data, extract ROI voxels, and save the responses
+	python dynamic_bias/analyses/fmri/workflow/preprocess.py
+
 analysis-behavior:
 # [1] estimate stimulus-specific biases from behavior data
 	python dynamic_bias/analyses/behavior/workflow/stimulus_specific_bias.py

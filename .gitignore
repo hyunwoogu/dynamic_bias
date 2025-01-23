@@ -2,6 +2,7 @@
 /models/
 legacy/
 debug/
+tests/
 data/
 figures/
 .idea/

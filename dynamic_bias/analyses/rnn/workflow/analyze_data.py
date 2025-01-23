@@ -195,9 +195,20 @@ for i_boot in range(N_BOOT):
     
     if i_boot % 500 == 0:
         print(f'iteration {i_boot} done')
-stim_traj_boot['early'] = np.array(stim_traj_boot['early'])
-stim_traj_boot['late']  = np.array(stim_traj_boot['late'])
 
+# for compact storage, save means and SEMs only
+stim_traj_boot['early'] = utils.wrap(np.array(stim_traj_boot['early']) - utils.exp_stim_list()[:, None], period=180. )
+stim_traj_boot['late']  = utils.wrap(np.array(stim_traj_boot['late'])  - utils.exp_stim_list()[:, None], period=180. )
+
+earlym, earlys = utils.meanstats( stim_traj_boot['early'], axis=0, sd=True )
+latem,  lates  = utils.meanstats( stim_traj_boot['late'],  axis=0, sd=True )
+earlym = utils.wrap(earlym + utils.exp_stim_list()[:, None], period=180.)
+latem  = utils.wrap(latem  + utils.exp_stim_list()[:, None], period=180.)
+
+stim_traj_boot = {
+    'early' : {'m' : earlym, 's' : earlys},
+    'late'  : {'m' : latem,  's' : lates},
+}
 utils.save(stim_traj_boot, f"{utils.ORIGIN}/data/outputs/rnn/bootstrap_stimulus_conditioned.pickle")
 print('bootstrap_stimulus_conditioned.pickle saved')
 
@@ -237,7 +248,13 @@ for i_boot in range(N_BOOT):
     if i_boot % 500 == 0:
         print(f'iteration {i_boot} done')
 
-decision_traj_boot['early'] = np.array(decision_traj_boot['early'])
-decision_traj_boot['late']  = np.array(decision_traj_boot['late'])
+# for compact storage, save means and SEMs only
+earlym, earlys = utils.meanstats( decision_traj_boot['early'], axis=0, sd=True )
+latem,  lates  = utils.meanstats( decision_traj_boot['late'],  axis=0, sd=True )
+
+decision_traj_boot = {
+    'early' : {'m' : earlym, 's' : earlys},
+    'late'  : {'m' : latem,  's' : lates},
+}
 utils.save(decision_traj_boot, f'{utils.ORIGIN}/data/outputs/rnn/bootstrap_decision_conditioned.pickle')
 print('bootstrap_decision_conditioned.pickle saved')

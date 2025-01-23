@@ -1,6 +1,5 @@
-"""Preprocess behavioral data from BIDS format to csv format
+"""combine behavior info from openneuro data into csv format
 """
-import os
 import re
 import argparse
 import numpy as np
@@ -10,32 +9,28 @@ from dynamic_bias import utils
 
 # make argparser
 parser = argparse.ArgumentParser()
-parser.add_argument('--bids_dir', type=str)
+parser.add_argument('--openneuro_dir', type=str)
 parser.add_argument('--out_dir', type=str, default=f'{utils.ORIGIN}/data/processed/behavior')
 args = parser.parse_args()
 
-bids_dir = Path(args.bids_dir)
-out_dir  = Path(args.out_dir)
+openneuro_dir = Path(args.openneuro_dir)
+out_dir       = Path(args.out_dir)
 utils.mkdir(out_dir)
 
 # 
-bids_sub = np.array(sorted([s for s in os.listdir(str(bids_dir)) if s.startswith('sub-')]))
-bids_lst = {}
-for i_sub, v_sub in enumerate(bids_sub):
-    bids_lst[v_sub] = {}
-    ses_lst         = sorted([s for s in os.listdir(str(bids_dir / v_sub)) if s.startswith('ses-')])
-    for v_ses in ses_lst[1:]:
-        file_dir = bids_dir / v_sub / v_ses / 'func'
-        file_lst = np.array(sorted([s for s in os.listdir(str(file_dir)) if s.startswith('sub-')]))
-        bids_lst[v_sub][v_ses] = []
-        for i_file, v_file in enumerate(file_lst):                             
-            if ('DET' in v_file) and (v_file.endswith('_events.tsv')):
-                bids_lst[v_sub][v_ses].append(str(file_dir / v_file))
-        bids_lst[v_sub][v_ses]    = sorted(bids_lst[v_sub][v_ses])
-bids_lst['sub-0069']['ses-3'].append(bids_lst['sub-0069']['ses-3'].pop(0)) # due to nonmatch between numbering and sorting
+run_key  = lambda f: int( str(f).split('run-')[1].split('_')[0] ) # key for natural-sorting run number
+openneuro_subs = sorted( sub.name for sub in openneuro_dir.glob('sub-*') )
+openneuro_list = {}
+for i_sub, v_sub in enumerate(openneuro_subs):
+    openneuro_list[v_sub] = {}
+    ses_lst = sorted( ses.name for ses in (openneuro_dir / v_sub).glob('ses-*') if ses.name != 'ses-1' )
+
+    for v_ses in ses_lst:
+        file_dir = openneuro_dir / v_sub / v_ses / 'func'
+        file_lst = sorted( file_dir.glob('sub-*DET*events.tsv'), key=run_key )
+        openneuro_list[v_sub][v_ses] = [str(fn) for fn in file_lst]
 
 # 
-np.seterr(divide='ignore', invalid='ignore')
 def convert_data(_filename):
     _events  = pd.read_csv(_filename, sep='\t')    
     _id      = int(re.search('sub-(.*)_ses',    _filename.rsplit('/',1)[-1]).group(1))
@@ -67,12 +62,12 @@ def convert_data(_filename):
 
 # save
 behav = {}
-for sub in bids_sub:
+for sub in openneuro_subs:
     behav_sub = []
-    for v in bids_lst[sub].values():
+    for v in openneuro_list[sub].values():
         for vv in v:
-            print(vv, type(vv))
-            behav_sub.append(convert_data(vv))
+            print(vv)
+            behav_sub.append( convert_data(vv) )
     if behav_sub:  
         behav[sub] = pd.concat(behav_sub)    
 behav_all = pd.concat(behav)

@@ -68,9 +68,10 @@ def reflect(x, index=0, axis=-1):
     return x
 
 def se(x, axis=-1):
-    """standard error"""
+    """standard error, excluding NaN values"""
     x = np.asarray(x)
-    return np.std(x, axis=axis) / np.sqrt(x.shape[axis])
+    n = np.sum(~np.isnan(x), axis=axis)
+    return np.nanstd(x, axis=axis) / np.sqrt(n)
 
 def project(p, p1=None, p2=None, slope=None, intercept=0):
     """project point p ([2] or [N,2]) onto
@@ -257,6 +258,44 @@ def circmean(x, unit='degree', data='orientation', **kwargs):
             m /= np.pi/180.
 
     return m
+
+def circcorr(x1, x2, uniform=False,
+             unit='degree', data='orientation', **kwargs):
+    """correlation for orientation / direction data
+        Jammalamadaka & Sengupta (2001)
+        if x1, x2 are uniform distributed, circular means m1, m2 are not well-defined.
+        in such case, circular mean m1 chosen as 0 and m2 chosen as circmean(x2-x1).
+
+    inputs
+    ------
+        uniform : whether both x1 and x2 are approximately uniform-distributed.
+    """ 
+
+    if unit == 'radian':
+        if data == 'orientation':
+            x1 = x1*2.
+            x2 = x2*2.
+    elif unit == 'degree':
+        if data == 'orientation':
+            x1 = x1*np.pi/90.
+            x2 = x2*np.pi/90.
+        elif data == 'direction':
+            x1 = x1*np.pi/180.
+            x2 = x2*np.pi/180.
+
+    # now x1, x2 are in (radian, direction)
+    if uniform:
+        m1 = 0
+        m2 = circmean(x2-x1, unit='radian', data='direction', **kwargs)
+
+    else:
+        m1 = circmean(x1, unit='radian', data='direction', **kwargs)
+        m2 = circmean(x2, unit='radian', data='direction', **kwargs)
+
+    numer = np.sum( np.sin(x1 - m1) * np.sin(x2 - m2) )
+    denom = np.sqrt( np.sum(np.sin(x1 - m1)**2) * np.sum(np.sin(x2 - m2)**2) )
+    return numer / denom if denom != 0 else np.nan
+
 
 def pearson_CI(x, y, alpha=0.05):
     """Pearson's correlation coefficient confidence interval

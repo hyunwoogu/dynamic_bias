@@ -71,7 +71,7 @@ class Stimulus(object):
         """generate tuning/input config"""
         _tuning_output = np.zeros((self.n_tuned_output, self.n_ori))
         stim_dirs = np.float32(np.arange(0,180,180/self.n_ori))
-        pref_dirs = np.float32(np.arange(0,180,180/(self.n_ori)))
+        pref_dirs = np.float32(np.arange(0,180,180/self.n_ori))
         for n in range(self.n_tuned_input):
             for i in range(self.n_ori):
                 d = np.cos((stim_dirs[i] - pref_dirs[n])/90*np.pi)
